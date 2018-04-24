@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">UdpFrame</string>
+    <string name="sendMsg">sendMsg</string>
+</resources>
