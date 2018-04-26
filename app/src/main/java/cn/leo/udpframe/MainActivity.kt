@@ -15,7 +15,8 @@ class MainActivity : AppCompatActivity(), UdpFrame.OnDataArrivedListener {
         val udpFrame = UdpFrame(this,25678)
         btnSendMsg.setOnClickListener {
             val data = WifiLManager.getLocalIpAddress(this).toByteArray()
-            udpFrame.sendBroadcast(this, data)
+            //udpFrame.sendBroadcast(this, data)
+            udpFrame.send(data,"127.0.0.1")
         }
     }
 

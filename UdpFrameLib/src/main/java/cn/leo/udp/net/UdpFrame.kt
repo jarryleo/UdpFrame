@@ -166,7 +166,7 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
      */
     private fun sendData(data: ByteArray, host: String, port: Int) {
         //发送地址
-        val ia = InetSocketAddress(host, listenPort)
+        val ia = InetSocketAddress(host, port)
         //已发送字节数
         var sendLength = 0
         //要发送的长度
