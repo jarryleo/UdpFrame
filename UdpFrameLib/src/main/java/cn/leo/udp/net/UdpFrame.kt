@@ -1,10 +1,7 @@
 package cn.leo.udp.net
 
 import android.content.Context
-import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Message
+import android.os.*
 import android.util.Log
 import cn.leo.udp.manager.WifiLManager
 import java.net.DatagramPacket
@@ -28,6 +25,14 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
     private val mReceiveSocket = DatagramSocket(listenPort)
     private var mHandlerThread: HandlerThread = HandlerThread("sendThread")
     private var mSendHandler: Handler
+    private val mainThreadHandler = Handler(Looper.getMainLooper())
+    //子线程上回调数据
+    private var mDataArriveOnMainThread = false
+
+
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class MainThread
 
     interface OnDataArrivedListener {
         fun onDataArrived(data: ByteArray, length: Int, host: String)
@@ -54,13 +59,23 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
             true
         }
         start() //启动监听
+        checkThread()
+    }
+
+    private fun checkThread() {
+        val kClass = onDataArrivedListener::class.java
+        val declaredMethod = kClass.getDeclaredMethod("onDataArrived",
+                ByteArray::class.java, Int::class.java, String::class.java)
+        val annotation = declaredMethod.getAnnotation(MainThread::class.java)
+        mDataArriveOnMainThread = annotation != null
     }
 
     /**
      * 替换接受数据监听器
      */
-    fun addOnDataArrivedListener(onDataArrivedListener: OnDataArrivedListener) {
+    fun setOnDataArrivedListener(onDataArrivedListener: OnDataArrivedListener) {
         this.onDataArrivedListener = onDataArrivedListener
+        checkThread()
     }
 
     /**
@@ -116,8 +131,7 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
                 //数据只有1个包
                 if (head[0] == 1.toByte()) {
                     //数据回调给上层协议层
-                    onDataArrivedListener.onDataArrived(body, body.size,
-                            dp.address.hostAddress)
+                    onReceiveData(body, dp.address.hostAddress)
                 } else {
                     //新的数据包组到来清空缓存
                     if (head[1] == 1.toByte()) {
@@ -142,8 +156,7 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
                                 length += bytes.size
                             }
                             //数据回调给上层协议层
-                            onDataArrivedListener.onDataArrived(sumData, sumData.size,
-                                    dp.address.hostAddress)
+                            onReceiveData(sumData, dp.address.hostAddress)
                         } else {
                             //数据包不完整
                             Log.e("udp", " -- data is incomplete")
@@ -151,13 +164,26 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
                     }
                 }
             } catch (e: Exception) {
-
+                e.printStackTrace()
             }
         }
         mReceiveSocket.disconnect()
         mReceiveSocket.close()
         mSendSocket.close()
         mHandlerThread.quit()
+    }
+
+    /**
+     * 接受数据线程处理
+     */
+    private fun onReceiveData(body: ByteArray, host: String) {
+        if (mDataArriveOnMainThread) {
+            mainThreadHandler.post {
+                onDataArrivedListener.onDataArrived(body, body.size, host)
+            }
+        } else {
+            onDataArrivedListener.onDataArrived(body, body.size, host)
+        }
     }
 
     /**
