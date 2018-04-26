@@ -17,14 +17,15 @@ import java.net.InetSocketAddress
  * 无丢包处理。
  */
 
-class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener,
-               private val mListenPort: Int = 37320) : Thread() {
+class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
+               private val listenPort: Int = 37320) : Thread() {
     private val hostFlag = "host"
+    private val portFlag = "port"
     private val dataFlag = "data"
     //拆分单个包大小(包的个数为byte最大值)这个值不能超过UDP包最大值64K。
     private val mPackSize = 1024
     private val mSendSocket = DatagramSocket()
-    private val mReceiveSocket = DatagramSocket(this.mListenPort)
+    private val mReceiveSocket = DatagramSocket(listenPort)
     private var mHandlerThread: HandlerThread = HandlerThread("sendThread")
     private var mSendHandler: Handler
 
@@ -47,20 +48,29 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener,
             }
             val data = it.data
             val host = data.getString(hostFlag)
+            val port = data.getInt(portFlag)
             val byteArray = data.getByteArray(dataFlag)
-            sendData(byteArray, host)
+            sendData(byteArray, host, port)
             true
         }
         start() //启动监听
     }
 
     /**
+     * 替换接受数据监听器
+     */
+    fun addOnDataArrivedListener(onDataArrivedListener: OnDataArrivedListener) {
+        this.onDataArrivedListener = onDataArrivedListener
+    }
+
+    /**
      *发送
      */
-    fun send(data: ByteArray, host: String) {
+    fun send(data: ByteArray, host: String, port: Int = listenPort) {
         val message = Message.obtain()
         val bundle = Bundle()
         bundle.putString(hostFlag, host)
+        bundle.putInt(portFlag, port)
         bundle.putByteArray(dataFlag, data)
         message.data = bundle
         mSendHandler.sendMessage(message)
@@ -106,7 +116,7 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener,
                 //数据只有1个包
                 if (head[0] == 1.toByte()) {
                     //数据回调给上层协议层
-                    mOnDataArrivedListener.onDataArrived(body, body.size,
+                    onDataArrivedListener.onDataArrived(body, body.size,
                             dp.address.hostAddress)
                 } else {
                     //新的数据包组到来清空缓存
@@ -132,7 +142,7 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener,
                                 length += bytes.size
                             }
                             //数据回调给上层协议层
-                            mOnDataArrivedListener.onDataArrived(sumData, sumData.size,
+                            onDataArrivedListener.onDataArrived(sumData, sumData.size,
                                     dp.address.hostAddress)
                         } else {
                             //数据包不完整
@@ -154,9 +164,9 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener,
      *发送数据包
      * 最大127K
      */
-    private fun sendData(data: ByteArray, host: String) {
+    private fun sendData(data: ByteArray, host: String, port: Int) {
         //发送地址
-        val ia = InetSocketAddress(host, this.mListenPort)
+        val ia = InetSocketAddress(host, listenPort)
         //已发送字节数
         var sendLength = 0
         //要发送的长度
@@ -201,7 +211,7 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener,
     }
 
     private fun safetyClose() {
-        val ia = InetSocketAddress("localhost", mListenPort)
+        val ia = InetSocketAddress("localhost", listenPort)
         val head = byteArrayOf((-0xEE).toByte(), (-0xDD).toByte())
         val dp = DatagramPacket(head, head.size, ia)
         mSendSocket.send(dp)
