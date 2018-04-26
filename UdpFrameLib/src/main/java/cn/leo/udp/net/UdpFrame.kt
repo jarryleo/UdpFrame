@@ -62,6 +62,9 @@ class UdpFrame(private var onDataArrivedListener: OnDataArrivedListener,
         checkThread()
     }
 
+    /**
+     * 检查注解
+     */
     private fun checkThread() {
         val kClass = onDataArrivedListener::class.java
         val declaredMethod = kClass.getDeclaredMethod("onDataArrived",
