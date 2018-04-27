@@ -5,50 +5,74 @@ import android.content.Context
 /**
  * Created by Leo on 2018/4/27.
  */
-class UdpFrame : UdpInterface {
+object UdpFrame : UdpInterface {
 
-    private var udpCore: UdpCore
+    private val sendCore = UdpSendCore()
+    private var listenCoreObservers = HashMap<Int, UdpListenCore>()
 
-    constructor(onDataArrivedListener: OnDataArrivedListener) {
-        udpCore = UdpCore(onDataArrivedListener)
-    }
-
-    constructor(onDataArrivedListener: OnDataArrivedListener, port: Int) {
-        udpCore = UdpCore(onDataArrivedListener, port)
-    }
 
     /**
      *发送局域网广播
      */
     override fun sendBroadcast(context: Context, data: ByteArray) {
-        udpCore.sendBroadcast(context, data)
+        sendCore.sendBroadcast(context, data)
     }
 
     /**
      * 发送数据到host默认端口
      */
     override fun send(data: ByteArray, host: String) {
-        udpCore.send(data, host)
+        sendCore.send(data, host)
     }
 
     /**
      * 发送数据到指定端口
      */
     override fun send(data: ByteArray, host: String, port: Int) {
-        udpCore.send(data, host, port)
+        sendCore.send(data, host, port)
     }
 
     /**
-     * 重设数据接收回调
+     * 订阅默认端口监听数据回调
      */
-    override fun setOnDataArrivedListener(onDataArrivedListener: OnDataArrivedListener) {
-        udpCore.setOnDataArrivedListener(onDataArrivedListener)
+    override fun subscribe(onDataArrivedListener: OnDataArrivedListener) {
+        subscribe(Config.DEF_PORT, onDataArrivedListener)
+    }
+
+    /**
+     * 订阅端口数据回调
+     */
+    override fun subscribe(port: Int, onDataArrivedListener: OnDataArrivedListener) {
+        if (listenCoreObservers.containsKey(port)) {
+            val listenCore = listenCoreObservers[port]
+            listenCore?.subscribe(onDataArrivedListener)
+        } else {
+            //创建新的端口监听
+            val listenCore = UdpListenCore(onDataArrivedListener, port)
+            listenCoreObservers[port] = listenCore
+        }
+    }
+
+    /**
+     * 取消数据回调订阅
+     */
+    override fun unSubscribe(onDataArrivedListener: OnDataArrivedListener) {
+        listenCoreObservers.values.forEach { it.unSubscribe(onDataArrivedListener) }
+    }
+
+    /**
+     * 取消端口订阅
+     */
+    override fun unSubscribe(port: Int) {
+        sendCore.closeListen(port)
+        listenCoreObservers.remove(port)
     }
 
     /**
      * 关闭监听，释放资源
      */
     override fun close() {
-        udpCore.close()
+        listenCoreObservers.keys.forEach { sendCore.closeListen(it) }
+        listenCoreObservers.clear()
     }
 }

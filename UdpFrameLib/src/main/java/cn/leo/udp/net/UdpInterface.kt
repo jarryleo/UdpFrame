@@ -9,6 +9,9 @@ internal interface UdpInterface {
     fun send(data: ByteArray, host: String, port: Int)
     fun send(data: ByteArray, host: String)
     fun sendBroadcast(context: Context, data: ByteArray)
-    fun setOnDataArrivedListener(onDataArrivedListener: OnDataArrivedListener)
+    fun subscribe(onDataArrivedListener: OnDataArrivedListener)
+    fun subscribe(port: Int, onDataArrivedListener: OnDataArrivedListener)
+    fun unSubscribe(onDataArrivedListener: OnDataArrivedListener)
+    fun unSubscribe(port: Int)
     fun close()
 }
