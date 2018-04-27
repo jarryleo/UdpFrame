@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
         setContentView(R.layout.activity_main)
         UdpFrame.subscribe(this)
         UdpFrame.subscribe(
-                37321,
+                37320,
                 object : OnDataArrivedListener {
                     @UdpDataArrivedOnMainThread
                     override fun onDataArrived(data: ByteArray, host: String) {
@@ -28,13 +28,12 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
             val data = WifiLManager.getLocalIpAddress(this).toByteArray()
             //UdpFrame.sendBroadcast(this, data)
             UdpFrame.send(data, "127.0.0.1")
-            UdpFrame.send("测试端口2".toByteArray(), "127.0.0.1", 37321)
+            UdpFrame.send("测试端口2".toByteArray(), "127.0.0.1", 37320)
         }
         btnClose.setOnClickListener {
             UdpFrame.close()
             tvMsg.text = "端口已关闭"
         }
-
     }
 
     @UdpDataArrivedOnMainThread

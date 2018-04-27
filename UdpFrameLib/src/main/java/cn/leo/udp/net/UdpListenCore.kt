@@ -68,8 +68,7 @@ internal class UdpListenCore : Thread {
         val kClass = onDataArrivedListener::class.java
         val declaredMethod = kClass.getDeclaredMethod("onDataArrived",
                 ByteArray::class.java, String::class.java)
-        val annotation = declaredMethod.getAnnotation(UdpDataArrivedOnMainThread::class.java)
-        return annotation != null
+        return declaredMethod.isAnnotationPresent(UdpDataArrivedOnMainThread::class.java)
     }
 
     /**
