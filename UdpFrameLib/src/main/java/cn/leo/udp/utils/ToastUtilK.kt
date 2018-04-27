@@ -19,8 +19,9 @@ object ToastUtilK {
             mToast?.show()
         }
     }
+
+    fun Context.toast(text: String, duration: Int = Toast.LENGTH_SHORT) {
+        ToastUtilK.show(this, text, duration)
+    }
 }
 
-fun Context.toast(text: String, duration: Int = Toast.LENGTH_SHORT) {
-    ToastUtilK.show(this, text, duration)
-}

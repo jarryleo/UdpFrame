@@ -3,11 +3,13 @@ package cn.leo.udpframe
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import cn.leo.udp.manager.WifiLManager
+import cn.leo.udp.net.OnDataArrivedListener
+import cn.leo.udp.net.UdpDataArrivedOnMainThread
 import cn.leo.udp.net.UdpFrame
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.Executors
 
-class MainActivity : AppCompatActivity(), UdpFrame.OnDataArrivedListener {
-
+class MainActivity : AppCompatActivity(), OnDataArrivedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +26,9 @@ class MainActivity : AppCompatActivity(), UdpFrame.OnDataArrivedListener {
         }
     }
 
-    @UdpFrame.MainThread
-    override fun onDataArrived(data: ByteArray, length: Int, host: String) {
+    @UdpDataArrivedOnMainThread
+    override fun onDataArrived(data: ByteArray, host: String) {
         tvMsg.text = String(data)
+        Executors.newFixedThreadPool(10)
     }
 }
