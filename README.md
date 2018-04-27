@@ -14,20 +14,30 @@ Add it in your root build.gradle at the end of repositories:
 ### Step 2. Add the dependency
 ```
 	dependencies {
-	        compile 'com.github.jarryleo:UdpFrame:v1.0.2'
+	        compile 'com.github.jarryleo:UdpFrame:v2.0'
 	}
 ```
 ### 使用方法
 
 ```
-	val udpFrame = UdpFrame(this, 25678)
-	btnSendMsg.setOnClickListener {
+	UdpFrame.subscribe(this) //订阅接受默认端口37320数据
+        UdpFrame.subscribe(
+                37321,//订阅接收指定端口数据
+                object : OnDataArrivedListener {
+                    @UdpDataArrivedOnMainThread
+                    override fun onDataArrived(data: ByteArray, host: String) {
+                        toast(String(data))
+                    }
+                }
+        )
+        btnSendMsg.setOnClickListener {
             val data = WifiLManager.getLocalIpAddress(this).toByteArray()
-            //udpFrame.sendBroadcast(this, data)
-            udpFrame.send(data, "127.0.0.1")
+            //UdpFrame.sendBroadcast(this, data)
+            UdpFrame.send(data, "127.0.0.1")
+            UdpFrame.send("测试端口2".toByteArray(), "127.0.0.1", 37321)
         }
         btnClose.setOnClickListener {
-            udpFrame.close()
+            UdpFrame.close()
             tvMsg.text = "端口已关闭"
         }
 ```
@@ -35,8 +45,8 @@ Add it in your root build.gradle at the end of repositories:
 
 ### 数据回调
 ```
-    @UdpFrame.MainThread
-    override fun onDataArrived(data: ByteArray, length: Int, host: String) {
+    @UdpDataArrivedOnMainThread
+    override fun onDataArrived(data: ByteArray, host: String) {
         tvMsg.text = String(data)
     }
 ```
