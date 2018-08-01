@@ -83,13 +83,15 @@ internal class UdpListenCore : Thread {
                 mReceiveSocket.receive(dp)
                 //发送发地址
                 val remoteAddress = dp.address.hostAddress
+                val head = data.copyOf(2)
+                val body = data.copyOfRange(2, data.lastIndex)
                 //检查数据包头部
-                val head = ByteArray(2)
-                val body = ByteArray(dp.length - 2)
+                //val head = ByteArray(2)
+                //val body = ByteArray(dp.length - 2)
                 //取出头部
-                System.arraycopy(data, 0, head, 0, head.size)
+                //System.arraycopy(data, 0, head, 0, head.size)
                 //取出数据体
-                System.arraycopy(data, 2, body, 0, body.size)
+                //System.arraycopy(data, 2, body, 0, body.size)
                 //安全退出，不再监听
                 if (head[0] == (-0xEE).toByte() && head[1] == (-0xDD).toByte()) {
                     if ("127.0.0.1" == remoteAddress) {
@@ -134,14 +136,16 @@ internal class UdpListenCore : Thread {
                         if (cache.size == head[0].toInt()) {
                             //开始组装数据
                             //获取数据总长度
-                            val dataLength = cache.sumBy { it.size }
-                            val sumData = ByteArray(dataLength)
+                            //val dataLength = cache.sumBy { it.size }
+                            var sumData = cache[0]
+                            cache.drop(1).forEach { sumData += it }
+                            /*
                             //已经拼接长度
                             var length = 0
                             for (bytes in cache) {
                                 System.arraycopy(bytes, 0, sumData, length, bytes.size)
                                 length += bytes.size
-                            }
+                            }*/
                             //数据回调给上层协议层
                             onReceiveData(sumData, remoteAddress)
                             //清空缓存

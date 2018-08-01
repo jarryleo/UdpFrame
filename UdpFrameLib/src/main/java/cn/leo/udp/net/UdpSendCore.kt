@@ -87,15 +87,16 @@ internal class UdpSendCore {
                 (dataSize - sendLength)
             } + 2
             //定义新包大小
-            val pack = ByteArray(length)
+            //val pack = ByteArray(length)
             //-2 表示去掉头长度，+1表示，长度刚好1个包的时候不会多出来
             //当前包序号，从1开始
             val packIndex = sendLength / (Config.PACK_SIZE - 2) + 1
             val head = byteArrayOf(packCount.toByte(), packIndex.toByte())
             //添加数据头
-            System.arraycopy(head, 0, pack, 0, head.size)
+            //System.arraycopy(head, 0, pack, 0, head.size)
             //添加数据体
-            System.arraycopy(data, sendLength, pack, head.size, pack.size - head.size)
+            //System.arraycopy(data, sendLength, pack, head.size, pack.size - head.size)
+            val pack = head + data
             //发送小包
             val dp = DatagramPacket(pack, pack.size, ia)
             try {

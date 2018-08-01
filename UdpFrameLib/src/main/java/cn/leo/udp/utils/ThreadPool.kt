@@ -25,7 +25,7 @@ object ThreadPool {
     /**
      * 超出线程池容量后的的排队队列,超出队列容量后将抛出异常
      */
-    private val sPoolWorkQueue = LinkedBlockingQueue<Runnable>(16 * CPU_COUNT)
+    private val sPoolWorkQueue = LinkedBlockingQueue<Runnable>(256)
     /**
      * An [Executor] that can be used to execute tasks in parallel.
      */
