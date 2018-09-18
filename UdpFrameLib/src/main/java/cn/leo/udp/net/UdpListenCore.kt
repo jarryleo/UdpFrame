@@ -2,7 +2,6 @@ package cn.leo.udp.net
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.util.concurrent.ConcurrentHashMap
@@ -13,30 +12,20 @@ import java.util.concurrent.ConcurrentHashMap
  * 无丢包处理。
  */
 
-internal class UdpListenCore : Thread {
-    private var mPort = Config.DEF_PORT
+internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProcessor.MergeProcessResultListener {
+
+
+    private var mPort = port
     private lateinit var mReceiveSocket: DatagramSocket
     private val mMainThreadHandler = Handler(Looper.getMainLooper())
     private val mDataArrivedObservers = HashMap<OnDataArrivedListener, Boolean>()
+    private var packetProcessor: PacketProcessor? = null
     //缓存(host,data)
     private val mCaches = ConcurrentHashMap<String, ArrayList<ByteArray>>()
 
-    constructor(port: Int) {
-        mPort = port
+    init {
         initSocket()
     }
-
-    constructor(onDataArrivedListener: OnDataArrivedListener) {
-        mDataArrivedObservers[onDataArrivedListener] = checkThread(onDataArrivedListener)
-        initSocket()
-    }
-
-    constructor(onDataArrivedListener: OnDataArrivedListener, port: Int = Config.DEF_PORT) {
-        mDataArrivedObservers[onDataArrivedListener] = checkThread(onDataArrivedListener)
-        mPort = port
-        initSocket()
-    }
-
 
     private fun initSocket() {
         mReceiveSocket = DatagramSocket(mPort)
@@ -46,6 +35,18 @@ internal class UdpListenCore : Thread {
     override fun run() {
         listen()
     }
+
+    /**
+     *  设置包处理器
+     */
+    fun setPacketProcessor(packetProcessor: PacketProcessor) {
+        if (this.packetProcessor != null && this.packetProcessor != packetProcessor) {
+            throw IllegalArgumentException("one port just set one packet processor!")
+        }
+        this.packetProcessor = packetProcessor
+        packetProcessor.setMergeResultListener(this)
+    }
+
 
     /**
      *  订阅数据回调
@@ -82,76 +83,14 @@ internal class UdpListenCore : Thread {
             try {
                 mReceiveSocket.receive(dp)
                 //发送发地址
-                val remoteAddress = dp.address.hostAddress
-                //检查数据包头部
-                val head = ByteArray(2)
-                val body = ByteArray(dp.length - 2)
-                //取出头部
-                System.arraycopy(data, 0, head, 0, head.size)
-                //取出数据体
-                System.arraycopy(data, 2, body, 0, body.size)
-                //安全退出，不再监听
+                val host = dp.address.hostAddress
+                val head = data.copyOf(2)
                 if (head[0] == (-0xEE).toByte() && head[1] == (-0xDD).toByte()) {
-                    if ("127.0.0.1" == remoteAddress) {
+                    if ("127.0.0.1" == host) {
                         break
                     }
                 }
-                //不符合规范的数据包直接抛弃
-                if (head[0] < head[1]) {
-                    continue
-                }
-                //数据只有1个包
-                if (head[0] == 1.toByte()) {
-                    //数据回调给上层协议层
-                    onReceiveData(body, remoteAddress)
-                } else {
-                    //分包接收处理
-                    var cache = mCaches[remoteAddress]
-
-                    //新的数据包组到来
-                    if (head[1] == 1.toByte()) {
-                        //没有缓存创建新缓存
-                        if (cache == null) {
-                            cache = ArrayList()
-                            mCaches[remoteAddress] = cache
-                        } else {
-                            //有的话清空这个地址的缓存
-                            cache.clear()
-                        }
-                    } else {
-                        //不是新的数据包，但是没有缓存。则抛弃这个包
-                        if (cache == null) {
-                            continue
-                        }
-                    }
-                    //缓存数据包(漏数据包则不缓存)
-                    if (cache.size + 1 == head[1].toInt()) {
-                        cache.add(body)
-                    }
-                    //所有数据包都抵达完成则拼接
-                    if (head[0] == head[1]) {
-                        //数据包完整的话
-                        if (cache.size == head[0].toInt()) {
-                            //开始组装数据
-                            //获取数据总长度
-                            val dataLength = cache.sumBy { it.size }
-                            val sumData = ByteArray(dataLength)
-                            //已经拼接长度
-                            var length = 0
-                            for (bytes in cache) {
-                                System.arraycopy(bytes, 0, sumData, length, bytes.size)
-                                length += bytes.size
-                            }
-                            //数据回调给上层协议层
-                            onReceiveData(sumData, remoteAddress)
-                            //清空缓存
-                            cache.clear()
-                        } else {
-                            //数据包不完整
-                            Log.e("udp", " -- data is incomplete")
-                        }
-                    }
-                }
+                packetProcessor?.merge(data, host)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -162,6 +101,14 @@ internal class UdpListenCore : Thread {
         //清空缓存
         mCaches.clear()
         mDataArrivedObservers.clear()
+    }
+
+    override fun onMergeSuccess(data: ByteArray, host: String) {
+        onReceiveData(data, host)
+    }
+
+    override fun onMergeFailed(data: ByteArray, host: String) {
+        //合并错误的包处理
     }
 
     /**
