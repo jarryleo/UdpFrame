@@ -3,7 +3,7 @@ package cn.leo.udp.net
 /**
  * @author : Jarry Leo
  * @date : 2018/9/18 9:48
- * 分包处理器,把一个大包分成若干小包数组
+ * 包处理器,可以处理自定义包结构或者分包
  */
 abstract class PacketProcessor {
     protected var mergeProcessResultListener: PacketProcessor.MergeProcessResultListener? = null
@@ -11,7 +11,14 @@ abstract class PacketProcessor {
         mergeProcessResultListener = resultListener
     }
 
+    /**
+     * 发送前的分包处理
+     */
     abstract fun subpackage(data: ByteArray): Array<ByteArray>
+
+    /**
+     * 接受到数据的合包处理
+     */
     abstract fun merge(data: ByteArray, host: String)
 
     interface MergeProcessResultListener {

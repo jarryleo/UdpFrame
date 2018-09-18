@@ -103,5 +103,5 @@ object ThreadPool {
         }
     }
 
-    fun isThreadPoolActive() = THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)
+    private fun isThreadPoolActive() = THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)
 }
