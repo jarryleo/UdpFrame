@@ -12,41 +12,20 @@ import java.util.concurrent.ConcurrentHashMap
  * 无丢包处理。
  */
 
-internal class UdpListenCore : Thread, PacketProcessorInterface.MergeProcessResultListener {
+internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProcessorInterface.MergeProcessResultListener {
 
 
-    private var mPort = Config.DEF_PORT
+    private var mPort = port
     private lateinit var mReceiveSocket: DatagramSocket
     private val mMainThreadHandler = Handler(Looper.getMainLooper())
     private val mDataArrivedObservers = HashMap<OnDataArrivedListener, Boolean>()
-    private var packetProcessor: PacketProcessorInterface = DefaultPacketProcessor()
-    fun setPacketProcessor(packetProcessor: PacketProcessorInterface) {
-        if (this.packetProcessor !is DefaultPacketProcessor) {
-            throw IllegalArgumentException("one packet processor just set to one listener!")
-        }
-        this.packetProcessor = packetProcessor
-        this.packetProcessor.setMergeResultListener(this)
-    }
-
+    private var packetProcessor: PacketProcessorInterface? = null
     //缓存(host,data)
     private val mCaches = ConcurrentHashMap<String, ArrayList<ByteArray>>()
 
-    constructor(port: Int) {
-        mPort = port
+    init {
         initSocket()
     }
-
-    constructor(onDataArrivedListener: OnDataArrivedListener) {
-        mDataArrivedObservers[onDataArrivedListener] = checkThread(onDataArrivedListener)
-        initSocket()
-    }
-
-    constructor(onDataArrivedListener: OnDataArrivedListener, port: Int = Config.DEF_PORT) {
-        mDataArrivedObservers[onDataArrivedListener] = checkThread(onDataArrivedListener)
-        mPort = port
-        initSocket()
-    }
-
 
     private fun initSocket() {
         mReceiveSocket = DatagramSocket(mPort)
@@ -56,6 +35,18 @@ internal class UdpListenCore : Thread, PacketProcessorInterface.MergeProcessResu
     override fun run() {
         listen()
     }
+
+    /**
+     *  设置包处理器
+     */
+    fun setPacketProcessor(packetProcessor: PacketProcessorInterface) {
+        if (this.packetProcessor != null && this.packetProcessor != packetProcessor) {
+            throw IllegalArgumentException("one port just set one packet processor!")
+        }
+        this.packetProcessor = packetProcessor
+        packetProcessor.setMergeResultListener(this)
+    }
+
 
     /**
      *  订阅数据回调
@@ -99,7 +90,7 @@ internal class UdpListenCore : Thread, PacketProcessorInterface.MergeProcessResu
                         break
                     }
                 }
-                packetProcessor.merge(data, host)
+                packetProcessor?.merge(data, host)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -117,6 +108,7 @@ internal class UdpListenCore : Thread, PacketProcessorInterface.MergeProcessResu
     }
 
     override fun onMergeFailed(data: ByteArray, host: String) {
+        //合并错误的包处理
     }
 
     /**

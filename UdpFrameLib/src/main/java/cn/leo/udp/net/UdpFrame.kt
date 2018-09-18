@@ -1,43 +1,26 @@
 package cn.leo.udp.net
 
-import android.content.Context
-
 /**
  * Created by Leo on 2018/4/27.
  */
 object UdpFrame : UdpInterface {
-    private val sendCore = UdpSendCore()
     private var listenCoreObservers = HashMap<Int, UdpListenCore>()
-
     /**
-     *发送局域网广播
+     * 获取消息发送器
      */
-    override fun sendBroadcast(context: Context, data: ByteArray, packetProcessor: PacketProcessorInterface) {
-        sendCore.setPacketProcessor(packetProcessor)
-        sendCore.sendBroadcast(context, data)
-    }
-
-    /**
-     * 发送数据到host默认端口
-     */
-    override fun send(data: ByteArray, host: String, packetProcessor: PacketProcessorInterface) {
-        sendCore.setPacketProcessor(packetProcessor)
-        sendCore.send(data, host)
-    }
-
-    /**
-     * 发送数据到指定端口
-     */
-    override fun send(data: ByteArray, host: String, port: Int, packetProcessor: PacketProcessorInterface) {
-        sendCore.setPacketProcessor(packetProcessor)
-        sendCore.send(data, host, port)
+    override fun getSender(host: String, port: Int, packetProcessor: PacketProcessorInterface): UdpSender {
+        val udpSender = UdpSenderImpl()
+        udpSender.setRemoteHost(host)
+        udpSender.setPort(port)
+        udpSender.setPacketProcessor(packetProcessor)
+        return udpSender
     }
 
     /**
      * 订阅默认端口监听数据回调
      */
     override fun subscribe(onDataArrivedListener: OnDataArrivedListener, packetProcessor: PacketProcessorInterface) {
-        subscribe(Config.DEF_PORT, onDataArrivedListener)
+        subscribe(Config.DEF_PORT, onDataArrivedListener, packetProcessor)
     }
 
     /**
@@ -47,9 +30,11 @@ object UdpFrame : UdpInterface {
         if (listenCoreObservers.containsKey(port)) {
             val listenCore = listenCoreObservers[port]
             listenCore?.subscribe(onDataArrivedListener)
+            listenCore?.setPacketProcessor(packetProcessor)
         } else {
             //创建新的端口监听
-            val listenCore = UdpListenCore(onDataArrivedListener, port)
+            val listenCore = UdpListenCore(port)
+            listenCore.subscribe(onDataArrivedListener)
             listenCore.setPacketProcessor(packetProcessor)
             listenCoreObservers[port] = listenCore
         }
@@ -66,7 +51,6 @@ object UdpFrame : UdpInterface {
      * 取消端口订阅
      */
     override fun unSubscribe(port: Int) {
-        sendCore.closeListen(port)
         listenCoreObservers.remove(port)
     }
 
@@ -74,7 +58,7 @@ object UdpFrame : UdpInterface {
      * 关闭监听，释放资源
      */
     override fun close() {
-        listenCoreObservers.keys.forEach { sendCore.closeListen(it) }
+        listenCoreObservers.keys.forEach { /*sendCore.closeListen(it)*/ }
         listenCoreObservers.clear()
     }
 }
