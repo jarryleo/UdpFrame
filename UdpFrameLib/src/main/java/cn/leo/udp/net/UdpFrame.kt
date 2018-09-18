@@ -5,6 +5,7 @@ package cn.leo.udp.net
  */
 object UdpFrame : UdpInterface {
     private var listenCoreObservers = HashMap<Int, UdpListenCore>()
+    private val closeableSender: UdpSenderImpl = UdpSenderImpl()
     /**
      * 获取消息发送器
      */
@@ -51,6 +52,7 @@ object UdpFrame : UdpInterface {
      * 取消端口订阅
      */
     override fun unSubscribe(port: Int) {
+        closeableSender.safeClose(port)
         listenCoreObservers.remove(port)
     }
 
@@ -58,7 +60,9 @@ object UdpFrame : UdpInterface {
      * 关闭监听，释放资源
      */
     override fun close() {
-        listenCoreObservers.keys.forEach { /*sendCore.closeListen(it)*/ }
+        listenCoreObservers.keys.forEach {
+            closeableSender.safeClose(it)
+        }
         listenCoreObservers.clear()
     }
 }

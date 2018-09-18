@@ -7,9 +7,9 @@ import android.content.Context
  * @date : 2018/9/18 16:39
  */
 interface UdpSender {
-    fun send(data: ByteArray)
-    fun setRemoteHost(host: String)
-    fun setPort(port: Int)
-    fun setPacketProcessor(packetProcessor: PacketProcessor)
-    fun sendBroadcast(context: Context, data: ByteArray)
+    fun send(data: ByteArray): UdpSender
+    fun setRemoteHost(host: String): UdpSender
+    fun setPort(port: Int): UdpSender
+    fun setPacketProcessor(packetProcessor: PacketProcessor): UdpSender
+    fun sendBroadcast(context: Context, data: ByteArray): UdpSender
 }
