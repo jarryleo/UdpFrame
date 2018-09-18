@@ -12,23 +12,32 @@ internal class UdpSenderImpl : UdpSender {
     private var host: String = "127.0.0.1"
     private var port: Int = Config.DEF_PORT
 
-    override fun send(data: ByteArray) {
+    override fun send(data: ByteArray): UdpSender {
         sendCore.send(data, host, port)
+        return this
     }
 
-    override fun setRemoteHost(host: String) {
+    override fun setRemoteHost(host: String): UdpSender {
         this.host = host
+        return this
     }
 
-    override fun setPort(port: Int) {
+    override fun setPort(port: Int): UdpSender {
         this.port = port
+        return this
     }
 
-    override fun setPacketProcessor(packetProcessor: PacketProcessor) {
+    override fun setPacketProcessor(packetProcessor: PacketProcessor): UdpSender {
         sendCore.setPacketProcessor(packetProcessor)
+        return this
     }
 
-    override fun sendBroadcast(context: Context, data: ByteArray) {
+    override fun sendBroadcast(context: Context, data: ByteArray): UdpSender {
         sendCore.sendBroadcast(context, data)
+        return this
+    }
+
+    fun safeClose(port: Int) {
+        sendCore.closeListen(port)
     }
 }
