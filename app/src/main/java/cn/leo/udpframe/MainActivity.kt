@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import cn.leo.localnet.utils.toast
 import cn.leo.udp.manager.WifiLManager
+import cn.leo.udp.net.BigPacketProcessor
 import cn.leo.udp.net.OnDataArrivedListener
 import cn.leo.udp.net.UdpDataArrivedOnMainThread
 import cn.leo.udp.net.UdpFrame
@@ -16,19 +17,19 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
         setContentView(R.layout.activity_main)
         UdpFrame.subscribe(this)
         UdpFrame.subscribe(
-                37320,
+                37321,
                 object : OnDataArrivedListener {
                     @UdpDataArrivedOnMainThread
                     override fun onDataArrived(data: ByteArray, host: String) {
                         toast(String(data))
                     }
-                }
+                },BigPacketProcessor()
         )
         btnSendMsg.setOnClickListener {
             val data = WifiLManager.getLocalIpAddress(this).toByteArray()
             //UdpFrame.sendBroadcast(this, data)
             UdpFrame.send(data, "127.0.0.1")
-            UdpFrame.send("测试端口2".toByteArray(), "127.0.0.1", 37320)
+            UdpFrame.send("测试端口2".toByteArray(), "127.0.0.1", 37321,BigPacketProcessor())
         }
         btnClose.setOnClickListener {
             UdpFrame.close()

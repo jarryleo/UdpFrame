@@ -4,9 +4,6 @@ import android.util.Log
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
 
-/**
- * Created by ww on 2016/11/12
- */
 object ThreadPool {
     private val CPU_COUNT = Runtime.getRuntime().availableProcessors()
     private val CORE_POOL_SIZE = CPU_COUNT + 1
@@ -69,7 +66,7 @@ object ThreadPool {
      */
     @Synchronized
     fun cancel(run: Runnable) {
-        if (THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)) {
+        if (isThreadPoolActive()) {
             THREAD_POOL_EXECUTOR!!.remove(run)
         }
     }
@@ -79,7 +76,7 @@ object ThreadPool {
      */
     @Synchronized
     operator fun contains(run: Runnable): Boolean {
-        return if (THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)) {
+        return if (isThreadPoolActive()) {
             THREAD_POOL_EXECUTOR!!.queue.contains(run)
         } else {
             false
@@ -91,7 +88,7 @@ object ThreadPool {
      */
     @Synchronized
     fun stop() {
-        if (THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)) {
+        if (isThreadPoolActive()) {
             THREAD_POOL_EXECUTOR!!.shutdownNow()
         }
     }
@@ -101,8 +98,10 @@ object ThreadPool {
      */
     @Synchronized
     fun shutdown() {
-        if (THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)) {
+        if (isThreadPoolActive()) {
             THREAD_POOL_EXECUTOR!!.shutdown()
         }
     }
+
+    fun isThreadPoolActive() = THREAD_POOL_EXECUTOR != null && (!THREAD_POOL_EXECUTOR!!.isShutdown || THREAD_POOL_EXECUTOR!!.isTerminating)
 }
