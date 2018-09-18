@@ -16,9 +16,9 @@ internal class UdpSendCore {
     private val mSendSocket = DatagramSocket()
     private var mHandlerThread: HandlerThread = HandlerThread("UdpFrameSendThread")
     private var mSendHandler: Handler
-    private var packetProcessor: PacketProcessorInterface = DefaultPacketProcessor()
+    private var packetProcessor: PacketProcessor = DefaultPacketProcessor()
 
-    fun setPacketProcessor(packetProcessor: PacketProcessorInterface) {
+    fun setPacketProcessor(packetProcessor: PacketProcessor) {
         this.packetProcessor = packetProcessor
     }
 

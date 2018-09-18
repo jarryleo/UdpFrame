@@ -7,14 +7,9 @@ import java.util.concurrent.ConcurrentHashMap
  * @author : Jarry Leo
  * @date : 2018/9/18 10:19
  */
-open class BigPacketProcessor(private var packetSize: Int = Config.PACK_SIZE) : PacketProcessorInterface {
+open class BigPacketProcessor(private var packetSize: Int = Config.PACK_SIZE) : PacketProcessor() {
     //缓存(host,data)
     private val mCaches = ConcurrentHashMap<String, ArrayList<ByteArray>>()
-    private var mergeProcessResultListener: PacketProcessorInterface.MergeProcessResultListener? = null
-    override fun setMergeResultListener(resultListener: PacketProcessorInterface.MergeProcessResultListener) {
-        mergeProcessResultListener = resultListener
-    }
-
 
     override fun subpackage(data: ByteArray): Array<ByteArray> {
         val list: MutableList<ByteArray> = mutableListOf()

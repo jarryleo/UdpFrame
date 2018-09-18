@@ -12,14 +12,14 @@ import java.util.concurrent.ConcurrentHashMap
  * 无丢包处理。
  */
 
-internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProcessorInterface.MergeProcessResultListener {
+internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProcessor.MergeProcessResultListener {
 
 
     private var mPort = port
     private lateinit var mReceiveSocket: DatagramSocket
     private val mMainThreadHandler = Handler(Looper.getMainLooper())
     private val mDataArrivedObservers = HashMap<OnDataArrivedListener, Boolean>()
-    private var packetProcessor: PacketProcessorInterface? = null
+    private var packetProcessor: PacketProcessor? = null
     //缓存(host,data)
     private val mCaches = ConcurrentHashMap<String, ArrayList<ByteArray>>()
 
@@ -39,7 +39,7 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
     /**
      *  设置包处理器
      */
-    fun setPacketProcessor(packetProcessor: PacketProcessorInterface) {
+    fun setPacketProcessor(packetProcessor: PacketProcessor) {
         if (this.packetProcessor != null && this.packetProcessor != packetProcessor) {
             throw IllegalArgumentException("one port just set one packet processor!")
         }

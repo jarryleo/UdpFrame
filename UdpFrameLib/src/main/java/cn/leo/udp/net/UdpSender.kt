@@ -10,6 +10,6 @@ interface UdpSender {
     fun send(data: ByteArray)
     fun setRemoteHost(host: String)
     fun setPort(port: Int)
-    fun setPacketProcessor(packetProcessor: PacketProcessorInterface)
+    fun setPacketProcessor(packetProcessor: PacketProcessor)
     fun sendBroadcast(context: Context, data: ByteArray)
 }

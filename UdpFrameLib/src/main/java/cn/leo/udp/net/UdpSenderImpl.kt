@@ -24,7 +24,7 @@ internal class UdpSenderImpl : UdpSender {
         this.port = port
     }
 
-    override fun setPacketProcessor(packetProcessor: PacketProcessorInterface) {
+    override fun setPacketProcessor(packetProcessor: PacketProcessor) {
         sendCore.setPacketProcessor(packetProcessor)
     }
 
