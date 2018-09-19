@@ -38,6 +38,12 @@ Add it in your root build.gradle at the end of repositories:
             //发送消息
             sender.send("测试发送消息".toByteArray())
         }
+	
+	override fun onDestroy() {
+        	super.onDestroy()
+        	//必须取消订阅,否则会导致内存泄漏
+        	UdpFrame.unSubscribe(this)
+    	}
        
 ```
 > 发送和接收消息需要相同的包处理器,可以省略,默认为包大小1024的包处理器,超过1024会自动分包,需要自己拼接
