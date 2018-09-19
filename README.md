@@ -14,7 +14,7 @@ Add it in your root build.gradle at the end of repositories:
 ### Step 2. Add the dependency
 ```
 	dependencies {
-	        compile 'com.github.jarryleo:UdpFrame:v2.1'
+	        compile 'com.github.jarryleo:UdpFrame:v2.2'
 	}
 ```
 ### 使用方法
@@ -40,7 +40,8 @@ Add it in your root build.gradle at the end of repositories:
         }
        
 ```
-
+> 发送和接收消息需要相同的包处理器,可以省略,默认为包大小1024的包处理器,超过1024会自动分包,需要自己拼接
+> 另外提供一个大包处理器BigPacketProcessor,默认最大可以一次发送127K的数据包,并且能自动拼接
 
 ### 数据回调
 ```
