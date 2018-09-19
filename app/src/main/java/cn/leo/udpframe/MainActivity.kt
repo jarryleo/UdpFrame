@@ -18,9 +18,9 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //订阅消息
-        UdpFrame.subscribe(this, BigPacketProcessor())
+        UdpFrame.subscribe(this)
         //获取发送器
-        val sender = UdpFrame.getSender("127.0.0.1", packetProcessor = BigPacketProcessor())
+        val sender = UdpFrame.getSender("127.0.0.1")
         btnSendMsg.setOnClickListener {
             //发送消息
             val data = s1.toByteArray()
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
             Log.e("s1-------", "size:" + data.size)
             Log.e("s1-------", s1)
         }
-        repeat(10) { s1 += s1 }
+        //repeat(10) { s1 += s1 }
     }
 
     //消息到达监听
