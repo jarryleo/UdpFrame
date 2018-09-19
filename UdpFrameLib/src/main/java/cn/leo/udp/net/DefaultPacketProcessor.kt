@@ -8,10 +8,16 @@ open class DefaultPacketProcessor(private var subPacketSize: Int = Config.PACK_S
 
     override fun subpackage(data: ByteArray): Array<ByteArray> {
         val list = mutableListOf<ByteArray>()
-        val size = data.size
+        val dataSize = data.size
         var packetSize = 0
-        while (packetSize < size) {
-            val packet = data.copyOfRange(packetSize, packetSize + subPacketSize)
+        while (packetSize < dataSize) {
+            var toIndex = packetSize + subPacketSize
+            toIndex = if (toIndex > dataSize) {
+                dataSize
+            } else {
+                toIndex
+            }
+            val packet = data.copyOfRange(packetSize, toIndex)
             packetSize += subPacketSize
             list.add(packet)
         }
