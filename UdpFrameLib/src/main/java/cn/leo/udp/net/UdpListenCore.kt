@@ -4,7 +4,6 @@ import android.os.Handler
 import android.os.Looper
 import java.net.DatagramPacket
 import java.net.DatagramSocket
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by Leo on 2018/2/26.
@@ -20,8 +19,6 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
     private val mMainThreadHandler = Handler(Looper.getMainLooper())
     private val mDataArrivedObservers = HashMap<OnDataArrivedListener, Boolean>()
     private var packetProcessor: PacketProcessor? = null
-    //缓存(host,data)
-    private val mCaches = ConcurrentHashMap<String, ArrayList<ByteArray>>()
 
     init {
         initSocket()
@@ -85,12 +82,14 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
                 //发送发地址
                 val host = dp.address.hostAddress
                 val head = data.copyOf(2)
-                if (head[0] == (-0xEE).toByte() && head[1] == (-0xDD).toByte()) {
+                if (head[0] == (-0xEE).toByte() &&
+                        head[1] == (-0xDD).toByte()) {
                     if ("127.0.0.1" == host) {
                         break
                     }
                 }
-                packetProcessor?.merge(data, host)
+                val copyData = data.copyOf(dp.length)
+                packetProcessor?.merge(copyData, host)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -98,8 +97,7 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
         //关闭端口
         mReceiveSocket.disconnect()
         mReceiveSocket.close()
-        //清空缓存
-        mCaches.clear()
+        //清空订阅
         mDataArrivedObservers.clear()
     }
 
@@ -108,7 +106,7 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
     }
 
     override fun onMergeFailed(data: ByteArray, host: String) {
-        //合并错误的包处理
+        //合并错误的包处理todo
     }
 
     /**
