@@ -23,7 +23,7 @@ Add it in your root build.gradle at the end of repositories:
 ```
      /**
          * 订阅接受消息的端口
-         * 参数1: 接受消息端口号
+         * 参数1:接受消息端口号
          * 参数2:消息回调
          * 参数3:消息处理器,构造为包大小
          */ 
@@ -52,7 +52,7 @@ Add it in your root build.gradle at the end of repositories:
          * 参数2:目标端口
          * 参数3:消息处理器,构造为包大小
          */
-        val sender = UdpFrame.getSender("127.0.0.1",37320, DefaultPacketProcessor(1024 * 60))
+        val sender = UdpFrame.getSender("127.0.0.1",37320, DefaultPacketProcessor(1024 * 30))
 	
        	//发送数据,data为字节数组
 	sender.send(data)
@@ -60,8 +60,9 @@ Add it in your root build.gradle at the end of repositories:
        
 ```
 #### 注意:
-> 发送和接收消息需要相同的包处理器,可以省略,默认为包大小1024的包处理器,超过1024会自动分包,需要自己拼接
-> 另外提供一个大包处理器BigPacketProcessor,默认最大可以一次发送127K的数据包,并且能自动拼接
+> 发送和接收消息需要相同的包处理器,可以省略;如果不相同则会导致消息错乱!
+> 默认的是包大小1024的包处理器,超过1024会自动分包,需要自己拼接!
+> 另外提供一个大包处理器BigPacketProcessor,默认最大可以一次发送127K的数据包,并且能自动拼接;
 
 ### 取消订阅(重要)
 ```
