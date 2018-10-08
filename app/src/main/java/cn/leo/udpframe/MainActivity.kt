@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import cn.leo.localnet.utils.toast
-import cn.leo.udp.net.BigPacketProcessor
+import cn.leo.udp.net.DefaultPacketProcessor
 import cn.leo.udp.net.OnDataArrivedListener
 import cn.leo.udp.net.UdpDataArrivedOnMainThread
 import cn.leo.udp.net.UdpFrame
@@ -18,9 +18,9 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //订阅消息
-        UdpFrame.subscribe(this)
+        UdpFrame.subscribe(this, DefaultPacketProcessor(1024 * 60))
         //获取发送器
-        val sender = UdpFrame.getSender("127.0.0.1")
+        val sender = UdpFrame.getSender("127.0.0.1", packetProcessor = DefaultPacketProcessor(1024 * 60))
         btnSendMsg.setOnClickListener {
             //发送消息
             val data = s1.toByteArray()
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), OnDataArrivedListener {
             Log.e("s1-------", "size:" + data.size)
             Log.e("s1-------", s1)
         }
-        //repeat(10) { s1 += s1 }
+        repeat(10) { s1 += s1 }
     }
 
     //消息到达监听

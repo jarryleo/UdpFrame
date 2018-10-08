@@ -1,5 +1,6 @@
 package cn.leo.udp.net
 
+import android.support.annotation.IntRange
 import android.util.Log
 import java.util.concurrent.ConcurrentHashMap
 
@@ -7,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @author : Jarry Leo
  * @date : 2018/9/18 10:19
  */
-open class BigPacketProcessor(private var subPacketSize: Int = Config.PACK_SIZE) : PacketProcessor() {
+open class BigPacketProcessor(@IntRange(from = 1, to = 64 * 1024) override var subPacketSize: Int = Config.PACK_SIZE) : PacketProcessor() {
     //缓存(host,data)
     private val mCaches = ConcurrentHashMap<String, MutableMap<Int, ByteArray>>()
 

@@ -1,11 +1,13 @@
 package cn.leo.udp.net
 
+import android.support.annotation.IntRange
+
 /**
  * @author : Jarry Leo
  * @date : 2018/9/18 9:48
  * 包处理器,可以处理自定义包结构或者分包
  */
-abstract class PacketProcessor {
+abstract class PacketProcessor(@IntRange(from = 1, to = 64 * 1024) open var subPacketSize: Int = Config.PACK_SIZE) {
     protected var mergeProcessResultListener: PacketProcessor.MergeProcessResultListener? = null
     fun setMergeResultListener(resultListener: MergeProcessResultListener) {
         mergeProcessResultListener = resultListener

@@ -1,10 +1,12 @@
 package cn.leo.udp.net
 
+import android.support.annotation.IntRange
+
 /**
  * @author : Jarry Leo
  * @date : 2018/9/18 10:19
  */
-open class DefaultPacketProcessor(private var subPacketSize: Int = Config.PACK_SIZE) : PacketProcessor() {
+open class DefaultPacketProcessor(@IntRange(from = 1, to = 64 * 1024) override var subPacketSize: Int = Config.PACK_SIZE) : PacketProcessor(subPacketSize) {
 
     override fun subpackage(data: ByteArray): Array<ByteArray> {
         val list = mutableListOf<ByteArray>()
