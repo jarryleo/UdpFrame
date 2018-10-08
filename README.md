@@ -25,7 +25,7 @@ Add it in your root build.gradle at the end of repositories:
          * 订阅接受消息的端口
          * 参数1:接受消息端口号
          * 参数2:消息回调
-         * 参数3:消息处理器,构造为包大小
+         * 参数3:消息处理器,构造为包大小,最大不能超过64K
          */ 
     UdpFrame.subscribe(37320,this, DefaultPacketProcessor(1024 * 30))
 ```
@@ -50,7 +50,7 @@ Add it in your root build.gradle at the end of repositories:
          * 获取消息发送器
          * 参数1:目标的ip地址
          * 参数2:目标端口
-         * 参数3:消息处理器,构造为包大小
+         * 参数3:消息处理器,构造为包大小,最大不能超过64K
          */
         val sender = UdpFrame.getSender("127.0.0.1",37320, DefaultPacketProcessor(1024 * 30))
 	
