@@ -73,7 +73,7 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
      * 监听UDP信息,接受数据
      */
     private fun listen() {
-        val data = ByteArray(Config.PACK_SIZE)
+        val data = ByteArray(packetProcessor?.subPacketSize!!)
         val dp = DatagramPacket(data, data.size)
         //缓存数据
         while (true) {

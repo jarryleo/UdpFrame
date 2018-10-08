@@ -1,5 +1,7 @@
 package cn.leo.udp.net
 
+import android.support.annotation.IntRange
+
 /**
  * Created by Leo on 2018/4/27.
  */
@@ -9,7 +11,7 @@ object UdpFrame : UdpInterface {
     /**
      * 获取消息发送器
      */
-    override fun getSender(host: String, port: Int, packetProcessor: PacketProcessor): UdpSender {
+    override fun getSender(host: String, @IntRange(from = 0, to = 65535) port: Int, packetProcessor: PacketProcessor): UdpSender {
         val udpSender = UdpSenderImpl()
         udpSender.setRemoteHost(host)
         udpSender.setPort(port)
@@ -27,7 +29,7 @@ object UdpFrame : UdpInterface {
     /**
      * 订阅端口数据回调
      */
-    override fun subscribe(port: Int, onDataArrivedListener: OnDataArrivedListener, packetProcessor: PacketProcessor) {
+    override fun subscribe(@IntRange(from = 0, to = 65535) port: Int, onDataArrivedListener: OnDataArrivedListener, packetProcessor: PacketProcessor) {
         if (listenCoreObservers.containsKey(port)) {
             val listenCore = listenCoreObservers[port]
             listenCore?.subscribe(onDataArrivedListener)
