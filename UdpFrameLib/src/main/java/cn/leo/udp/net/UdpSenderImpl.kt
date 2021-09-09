@@ -1,7 +1,5 @@
 package cn.leo.udp.net
 
-import android.content.Context
-
 /**
  * @author : Jarry Leo
  * @date : 2018/9/18 16:42
@@ -32,8 +30,8 @@ internal class UdpSenderImpl : UdpSender {
         return this
     }
 
-    override fun sendBroadcast(context: Context, data: ByteArray): UdpSender {
-        sendCore.sendBroadcast(context, data)
+    override fun sendBroadcast(data: ByteArray): UdpSender {
+        sendCore.sendBroadcast(data, this.port)
         return this
     }
 

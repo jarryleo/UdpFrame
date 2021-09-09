@@ -1,9 +1,7 @@
 package cn.leo.udp.net
 
 import android.annotation.TargetApi
-import android.content.Context
 import android.os.*
-import cn.leo.udp.manager.WifiLManager
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
@@ -58,9 +56,8 @@ internal class UdpSendCore {
     /**
      * 发送局域网广播
      */
-    internal fun sendBroadcast(context: Context, data: ByteArray) {
-        val broadCastAddress = WifiLManager.getBroadcastAddress(context)
-        send(data, broadCastAddress)
+    internal fun sendBroadcast(data: ByteArray, port: Int) {
+        send(data, "255.255.255.255", port)
     }
 
     /**

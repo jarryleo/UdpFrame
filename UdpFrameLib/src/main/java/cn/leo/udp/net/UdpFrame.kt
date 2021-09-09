@@ -8,10 +8,15 @@ import android.support.annotation.IntRange
 object UdpFrame : UdpInterface {
     private var listenCoreObservers = HashMap<Int, UdpListenCore>()
     private val closeableSender: UdpSenderImpl = UdpSenderImpl()
+
     /**
      * 获取消息发送器
      */
-    override fun getSender(host: String, @IntRange(from = 0, to = 65535) port: Int, packetProcessor: PacketProcessor): UdpSender {
+    override fun getSender(
+        host: String,
+        @IntRange(from = 0, to = 65535) port: Int,
+        packetProcessor: PacketProcessor
+    ): UdpSender {
         val udpSender = UdpSenderImpl()
         udpSender.setRemoteHost(host)
         udpSender.setPort(port)
@@ -22,14 +27,21 @@ object UdpFrame : UdpInterface {
     /**
      * 订阅默认端口监听数据回调
      */
-    override fun subscribe(onDataArrivedListener: OnDataArrivedListener, packetProcessor: PacketProcessor) {
+    override fun subscribe(
+        onDataArrivedListener: OnDataArrivedListener,
+        packetProcessor: PacketProcessor
+    ) {
         subscribe(Config.DEF_PORT, onDataArrivedListener, packetProcessor)
     }
 
     /**
      * 订阅端口数据回调
      */
-    override fun subscribe(@IntRange(from = 0, to = 65535) port: Int, onDataArrivedListener: OnDataArrivedListener, packetProcessor: PacketProcessor) {
+    override fun subscribe(
+        @IntRange(from = 0, to = 65535) port: Int,
+        onDataArrivedListener: OnDataArrivedListener,
+        packetProcessor: PacketProcessor
+    ) {
         if (listenCoreObservers.containsKey(port)) {
             val listenCore = listenCoreObservers[port]
             listenCore?.subscribe(onDataArrivedListener)

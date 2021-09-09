@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/UdpFrame.iml" filepath="$PROJECT_DIR$/UdpFrame.iml" />
-      <module fileurl="file://$PROJECT_DIR$/UdpFrameLib/UdpFrame-UdpFrame.iml" filepath="$PROJECT_DIR$/UdpFrameLib/UdpFrame-UdpFrame.iml" />
-      <module fileurl="file://$PROJECT_DIR$/UdpFrameLib/UdpFrameLib.iml" filepath="$PROJECT_DIR$/UdpFrameLib/UdpFrameLib.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/UdpFrame.iml" filepath="$PROJECT_DIR$/.idea/modules/UdpFrame.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/UdpFrameLib/UdpFrame.UdpFrameLib.iml" filepath="$PROJECT_DIR$/.idea/modules/UdpFrameLib/UdpFrame.UdpFrameLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/UdpFrame.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/UdpFrame.app.iml" />
     </modules>
   </component>
 </project>

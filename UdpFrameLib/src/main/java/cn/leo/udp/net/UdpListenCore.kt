@@ -11,7 +11,8 @@ import java.net.DatagramSocket
  * 无丢包处理。
  */
 
-internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProcessor.MergeProcessResultListener {
+internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(),
+    PacketProcessor.MergeProcessResultListener {
 
 
     private var mPort = port
@@ -64,8 +65,10 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
      */
     private fun checkThread(onDataArrivedListener: OnDataArrivedListener): Boolean {
         val kClass = onDataArrivedListener::class.java
-        val declaredMethod = kClass.getDeclaredMethod("onDataArrived",
-                ByteArray::class.java, String::class.java)
+        val declaredMethod = kClass.getDeclaredMethod(
+            "onDataArrived",
+            ByteArray::class.java, String::class.java
+        )
         return declaredMethod.isAnnotationPresent(UdpDataArrivedOnMainThread::class.java)
     }
 
@@ -73,7 +76,7 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
      * 监听UDP信息,接受数据
      */
     private fun listen() {
-        val data = ByteArray(packetProcessor?.subPacketSize!!)
+        val data = ByteArray(packetProcessor?.subPacketSize ?: Config.PACK_SIZE)
         val dp = DatagramPacket(data, data.size)
         //缓存数据
         while (true) {
@@ -83,7 +86,8 @@ internal class UdpListenCore(port: Int = Config.DEF_PORT) : Thread(), PacketProc
                 val host = dp.address.hostAddress
                 val head = data.copyOf(2)
                 if (head[0] == (-0xEE).toByte() &&
-                        head[1] == (-0xDD).toByte()) {
+                    head[1] == (-0xDD).toByte()
+                ) {
                     if ("127.0.0.1" == host) {
                         break
                     }

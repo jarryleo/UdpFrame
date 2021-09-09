@@ -11,5 +11,5 @@ interface UdpSender {
     fun setRemoteHost(host: String): UdpSender
     fun setPort(port: Int): UdpSender
     fun setPacketProcessor(packetProcessor: PacketProcessor): UdpSender
-    fun sendBroadcast(context: Context, data: ByteArray): UdpSender
+    fun sendBroadcast(data: ByteArray): UdpSender
 }
